@@ -24,6 +24,7 @@ const EditorPage = () => {
   const location = useLocation();
   const { roomId } = useParams();
   const reactNavigator = useNavigate();
+  const editorRef = useRef(null);
 
   useEffect(() => {
     const init = async () => {
@@ -87,6 +88,32 @@ const EditorPage = () => {
   function leaveRoom() {
     reactNavigator("/");
   }
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileContent = await file.text();
+      codeRef.current = fileContent;
+
+      // Emit code change to other users
+      if (socketRef.current) {
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+          roomId,
+          code: fileContent,
+        });
+      }
+
+      toast.success(`File "${file.name}" uploaded successfully`);
+
+      // Reset file input
+      event.target.value = "";
+    } catch (err) {
+      toast.error("Could not read the file");
+      console.error(err);
+    }
+  };
 
   if (!location.state) {
     return <Navigate to="/" />;
@@ -220,6 +247,26 @@ const EditorPage = () => {
           </select>
         </label>
 
+        <label>
+          Upload Code File:
+          <input
+            type="file"
+            accept=".txt,.js,.jsx,.py,.java,.cpp,.c,.css,.html,.sql,.rb,.go,.rs,.sh,.yml,.yaml,.xml,.md,.php,.dart,.swift,.r"
+            onChange={handleFileUpload}
+            className="fileInput"
+            style={{
+              display: "block",
+              marginTop: "4px",
+              marginBottom: "20px",
+              padding: "8px",
+              borderRadius: "5px",
+              backgroundColor: "#eee",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          />
+        </label>
+
         <button className="btn copyBtn" onClick={copyRoomId}>
           Copy ROOM ID
         </button>
@@ -236,6 +283,7 @@ const EditorPage = () => {
             console.log("on code change" + code);
             codeRef.current = code;
           }}
+          ref={editorRef}
         />
       </div>
     </div>

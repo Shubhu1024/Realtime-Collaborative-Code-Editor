@@ -107,10 +107,17 @@ import "codemirror/addon/search/jump-to-line.js";
 import "codemirror/addon/dialog/dialog.js";
 import "codemirror/addon/dialog/dialog.css";
 
-const Editor = ({ socketRef, roomId, onCodeChange }) => {
+const Editor = React.forwardRef(({ socketRef, roomId, onCodeChange }, ref) => {
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
+
+  // Expose editor ref to parent component
+  useEffect(() => {
+    if (ref) {
+      ref.current = editorRef.current;
+    }
+  }, [ref]);
 
   useEffect(() => {
     async function init() {
@@ -162,6 +169,8 @@ const Editor = ({ socketRef, roomId, onCodeChange }) => {
   }, [socketRef.current]);
 
   return <textarea id="realtimeEditor"></textarea>;
-};
+});
+
+Editor.displayName = 'Editor';
 
 export default Editor;
