@@ -18,6 +18,8 @@ const EditorPage = () => {
   const [them, setThem] = useRecoilState(cmtheme);
 
   const [clients, setClients] = useState([]);
+  const [sidebarWidth, setSidebarWidth] = useState(230); // Default width in pixels
+  const [isDragging, setIsDragging] = useState(false);
 
   const socketRef = useRef(null);
   const codeRef = useRef(null);
@@ -25,6 +27,7 @@ const EditorPage = () => {
   const { roomId } = useParams();
   const reactNavigator = useNavigate();
   const editorRef = useRef(null);
+  const mainWrapRef = useRef(null);
 
   useEffect(() => {
     const init = async () => {
@@ -75,6 +78,35 @@ const EditorPage = () => {
     };
   }, []);
 
+  // Handle drag to resize
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+
+      const newWidth = e.clientX;
+      const minWidth = 80; // Minimum sidebar width
+      const maxWidth = window.innerWidth - 200; // Maximum sidebar width (leave room for editor)
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
+
   async function copyRoomId() {
     try {
       await navigator.clipboard.writeText(roomId);
@@ -87,6 +119,10 @@ const EditorPage = () => {
 
   function leaveRoom() {
     reactNavigator("/");
+  }
+
+  if (!location.state) {
+    return <Navigate to="/" />;
   }
 
   const handleFileUpload = async (event) => {
@@ -115,12 +151,8 @@ const EditorPage = () => {
     }
   };
 
-  if (!location.state) {
-    return <Navigate to="/" />;
-  }
-
   return (
-    <div className="mainWrap">
+    <div className="mainWrap" ref={mainWrapRef} style={{ gridTemplateColumns: `${sidebarWidth}px 1fr` }}>
       <div className="aside">
         <div className="asideInner">
           <div className="logo">
@@ -274,6 +306,13 @@ const EditorPage = () => {
           Leave
         </button>
       </div>
+
+      {/* Draggable Divider */}
+      <div
+        className="resizeHandle"
+        onMouseDown={() => setIsDragging(true)}
+        title="Drag to resize"
+      />
 
       <div className="editorWrap">
         <Editor

@@ -135,8 +135,9 @@ footer a:hover {
 
 .mainWrap {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 230px 1fr;
     height: 100vh;
+    transition: grid-template-columns 0.05s ease-out;
 }
 
 @media screen and (min-width: 480px) {
@@ -144,7 +145,31 @@ footer a:hover {
         display: grid;
         grid-template-columns: 230px 1fr;
         height: 100vh;
+        transition: grid-template-columns 0.05s ease-out;
     }
+}
+
+/* Resize handle styling */
+.resizeHandle {
+    width: 8px;
+    background: linear-gradient(to right, transparent, #424242, transparent);
+    cursor: col-resize;
+    user-select: none;
+    transition: background 0.2s ease;
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+    position: relative;
+    z-index: 100;
+}
+
+.resizeHandle:hover {
+    background: linear-gradient(to right, transparent, #0096FF, transparent);
+    background-color: rgba(0, 150, 255, 0.2);
+}
+
+.resizeHandle:active {
+    background: linear-gradient(to right, transparent, #0096FF, transparent);
+    background-color: rgba(0, 150, 255, 0.4);
 }
 
 .aside {
@@ -206,7 +231,7 @@ footer a:hover {
 .CodeMirror {
     font-family: 'Cascadia Code', sans-serif !important;
     min-height: calc(100vh - 20px);
-    width: calc(100vw - 180px);
+    width: 100%;
     font-size: 16px;
     line-height: 1.6;
     padding-top: 20px;
@@ -215,7 +240,7 @@ footer a:hover {
 @media screen and (min-width: 480px) {
     .CodeMirror {
         min-height: calc(100vh - 20px);
-        width: calc(100vw - 230px);
+        width: 100%;
         font-size: 16px;
         line-height: 1.6;
         padding-top: 20px;
@@ -242,4 +267,12 @@ footer a:hover {
 
 .fileInput::-webkit-file-upload-button:hover {
     background-color: var(--create-color);
+}
+
+.editorWrap {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
 }
